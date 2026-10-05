@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "gnezdo-property-audit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Предварительная комплексная проверка земельных участков и зданий в России перед покупкой: права, ограничения, ПЗЗ и ВРИ, судебные риски, продавец и пригодность объекта под цель покупателя.",
   "author": {
     "name": "GNEZDO"
