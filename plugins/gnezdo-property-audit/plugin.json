@@ -1,0 +1,29 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "gnezdo-property-audit",
+  "version": "1.0.0",
+  "description": "Предварительная комплексная проверка земельных участков и зданий в России перед покупкой: права, ограничения, ПЗЗ и ВРИ, судебные риски, продавец и пригодность объекта под цель покупателя.",
+  "author": {
+    "name": "GNEZDO"
+  },
+  "homepage": "https://github.com/Leelyya/gnezdo-property-audit",
+  "repository": "https://github.com/Leelyya/gnezdo-property-audit",
+  "keywords": [
+    "real-estate",
+    "property-audit",
+    "due-diligence",
+    "land",
+    "russia"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "GNEZDO · Проверка недвижимости",
+        "shortDescription": "Проверка участка и здания перед покупкой",
+        "longDescription": "Анализирует документы и доступные источники, проверяет права, ограничения, ПЗЗ и ВРИ, судебные риски, продавца и соответствие объекта цели покупателя.",
+        "developerName": "GNEZDO",
+        "category": "Productivity"
+      }
+    }
+  }
+}
