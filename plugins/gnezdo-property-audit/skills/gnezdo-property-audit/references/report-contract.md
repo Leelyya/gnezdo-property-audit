@@ -19,11 +19,11 @@
 - `conditional` - продолжение подготовки имеет смысл при выполнении перечисленных условий; это не разрешение перечислять деньги.
 - `no_material_findings_in_scope` - в согласованном и выполненном объёме существенных проблем не выявлено; только если все применимые пункты выполнены, существенные риски отсутствуют, источники пригодны по времени и не осталось критичных пробелов. Никогда не подписывать это словом «безопасно».
 
-## JSON v1
+## JSON v1.1
 
-Обязательные верхние поля: `schema_version` = `1.0`, `case_id`, `as_of` (дата/время с часовым поясом), `scope`, `sources`, `checks`, `findings`, `decision`, `limitations`.
+Обязательные верхние поля: `schema_version` = `1.1`, `case_id`, `as_of` (дата/время с часовым поясом), `scope`, `sources`, `checks`, `findings`, `decision`, `limitations`.
 
-`scope`: `jurisdiction`, `region`, `purpose`, `objects` (идентификаторы предмета анализа), `selected_check_ids` (точный перечень пунктов выбранного объёма). Регион и цель сохраняются из запроса. Даже при частичном выполнении выбранные пункты остаются в перечне.
+`scope`: `scenario` (`owner_listing_intake` или `buyer_purchase_due_diligence`), `jurisdiction`, `region`, `purpose`, `objects` (идентификаторы предмета анализа), `selected_check_ids` (точный перечень пунктов выбранного объёма). Регион и цель сохраняются из запроса. Даже при частичном выполнении выбранные пункты остаются в перечне.
 
 `sources[]`: `id`, `kind` (`uploaded_document`, `official_web`, `official_response`, `legislation`, `secondary_web`, `seller_statement`), `title`, `locator` (файл/URL/реквизит), `accessed_at`, `document_date` (или null), `status` (`reviewed`, `supplied_unverified`, `unavailable`), `notes`. `reviewed` означает прочитано, не гарантирует подлинность.
 
@@ -33,7 +33,7 @@
 
 `findings[]`: `id`, `check_ids`, `severity`, `fact_state`, `statement`, `impact`, `evidence`, `action`, `responsible`, `closure_evidence`, `legal_basis` (проверенная норма либо явное указание, что правовое основание ещё не установлено). Для `observed` и `inference` нужны доказательства; для `inference` объяснять переход от фактов к последствию.
 
-`decision`: `status`, `rationale`, `conditions` (массив). `limitations`: непроверенное, недоступные источники, дата среза, нерешённая идентичность, ограничения документов и фактического осмотра.
+`decision`: `status`, `client_status`, `rationale`, `conditions` (массив). `status` остаётся машинным: `insufficient_data`, `hold`, `conditional` или `no_material_findings_in_scope`. `client_status` обязан точно соответствовать выбранному сценарию и одной из утверждённых формулировок в [engagement-scenarios.md](engagement-scenarios.md). Машинный статус не подменяет адресное решение. `limitations`: непроверенное, недоступные источники, дата среза, нерешённая идентичность, ограничения документов и фактического осмотра.
 
 ## Контроль человеком и повторная проверка
 

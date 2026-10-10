@@ -12,8 +12,8 @@ def validate(data):
     errors = []
     if not isinstance(data, dict):
         return ["Report must be an object"]
-    if data.get("schema_version") != "1.0":
-        errors.append("schema_version must be 1.0")
+    if data.get("schema_version") != "1.1":
+        errors.append("schema_version must be 1.1")
 
     def text(value, label):
         if not isinstance(value, str) or not value.strip():
@@ -34,6 +34,22 @@ def validate(data):
         return errors + ["scope must be an object"]
     for key in ("jurisdiction", "region", "purpose"):
         text(scope.get(key), f"scope.{key}")
+    scenario = scope.get("scenario")
+    client_statuses = {
+        "owner_listing_intake": {
+            "Можно заключать агентский договор",
+            "Не заключать агентский договор до устранения вопросов",
+            "Рекомендуется отказаться от принятия объекта",
+        },
+        "buyer_purchase_due_diligence": {
+            "Можно продолжать подготовку сделки",
+            "Можно продолжать только после выполнения условий",
+            "Не вносить аванс до устранения рисков",
+            "Приостановить сделку",
+        },
+    }
+    if scenario not in client_statuses:
+        errors.append("scope.scenario: invalid scenario")
     if not isinstance(scope.get("objects"), list) or not scope["objects"]:
         errors.append("scope.objects must be a nonempty list")
     selected = scope.get("selected_check_ids")
@@ -152,6 +168,16 @@ def validate(data):
         return errors + ["decision must be an object"]
     if decision.get("status") not in {"insufficient_data", "hold", "conditional", "no_material_findings_in_scope"}:
         errors.append("invalid decision status")
+    if scenario in client_statuses and decision.get("client_status") not in client_statuses[scenario]:
+        errors.append("decision.client_status does not match scope.scenario")
+    favorable_client_status = {
+        "owner_listing_intake": "Можно заключать агентский договор",
+        "buyer_purchase_due_diligence": "Можно продолжать подготовку сделки",
+    }
+    if decision.get("status") == "no_material_findings_in_scope" and decision.get("client_status") != favorable_client_status.get(scenario):
+        errors.append("favorable machine status requires the favorable client status")
+    if decision.get("status") != "no_material_findings_in_scope" and decision.get("client_status") == favorable_client_status.get(scenario):
+        errors.append("favorable client status conflicts with a non-favorable machine status")
     text(decision.get("rationale"), "decision.rationale")
     if not isinstance(decision.get("conditions"), list):
         errors.append("decision.conditions must be an array")

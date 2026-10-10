@@ -4,11 +4,11 @@ from validate_report import validate
 
 
 def report():
-    return {"schema_version":"1.0","case_id":"synthetic-case","as_of":"2026-09-29T15:00:00+03:00",
-      "scope":{"jurisdiction":"RU","region":"test","purpose":"document comparison only","objects":["synthetic-object"],"selected_check_ids":["DOC-02"]},
+    return {"schema_version":"1.1","case_id":"synthetic-case","as_of":"2026-09-29T15:00:00+03:00",
+      "scope":{"scenario":"buyer_purchase_due_diligence","jurisdiction":"RU","region":"test","purpose":"document comparison only","objects":["synthetic-object"],"selected_check_ids":["DOC-02"]},
       "sources":[{"id":"D1","kind":"uploaded_document","title":"Synthetic excerpt","locator":"test.txt","accessed_at":"2026-09-29T15:00:00+03:00","document_date":"2026-09-29","status":"reviewed","notes":"Not a real property"}],
       "checks":[{"id":"DOC-02","applicability":"yes","status":"checked","result":"no_issue_detected","critical_to_close":True,"freshness":"fit_for_purpose","explanation":"Synthetic narrow check","evidence":[{"source_id":"D1","locator":"line 1","support":"Synthetic fact"}],"next_action":""}],
-      "findings":[],"decision":{"status":"no_material_findings_in_scope","rationale":"Only the explicitly narrow synthetic scope","conditions":[]},"limitations":["Synthetic test, no legal conclusion"]}
+      "findings":[],"decision":{"status":"no_material_findings_in_scope","client_status":"Можно продолжать подготовку сделки","rationale":"Only the explicitly narrow synthetic scope","conditions":[]},"limitations":["Synthetic test, no legal conclusion"]}
 
 
 class ValidationTests(unittest.TestCase):
@@ -34,10 +34,28 @@ class ValidationTests(unittest.TestCase):
     def test_same_gap_can_be_honestly_reported(self):
         value=report();value["checks"][0].update(status="not_checked",result="unknown",next_action="Request source",evidence=[])
         value["decision"]["status"]="insufficient_data"
+        value["decision"]["client_status"]="Не вносить аванс до устранения рисков"
         self.assertEqual(validate(value),[])
 
     def test_scope_cannot_silently_drop_a_selected_item(self):
         value=report();value["scope"]["selected_check_ids"].append("LAND-01")
+        self.assertTrue(validate(value))
+
+    def test_client_status_must_match_scenario(self):
+        value=report();value["decision"]["client_status"]="Можно заключать агентский договор"
+        self.assertTrue(validate(value))
+
+    def test_owner_scenario_accepts_owner_status(self):
+        value=report();value["scope"]["scenario"]="owner_listing_intake"
+        value["decision"]["client_status"]="Можно заключать агентский договор"
+        self.assertEqual(validate(value),[])
+
+    def test_favorable_client_status_cannot_hide_hold(self):
+        value=report();value["decision"]["status"]="hold"
+        self.assertTrue(validate(value))
+
+    def test_non_favorable_client_status_cannot_hide_favorable_machine_result(self):
+        value=report();value["decision"]["client_status"]="Приостановить сделку"
         self.assertTrue(validate(value))
 
     def test_critical_flag_cannot_be_lowered(self):
